@@ -42,25 +42,25 @@ import java.util.List;
 public abstract class AbstractDragRecycleViewAdapter<T, T2 extends RecyclerView.ViewHolder> extends RecyclerView.Adapter<T2> {
     private Context mContext;
     public List<T> mTempData = new ArrayList<>();
-    private RecyclerView mRecyclerView;
 
     public AbstractDragRecycleViewAdapter(Context context, RecyclerView recyclerView, List<T> listData) {
-        mRecyclerView = recyclerView;
         this.mContext = context;
-        mTempData.clear();
-        mTempData.addAll(listData);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
-        mItemTouchHelper.attachToRecyclerView(mRecyclerView);
+        if (listData != null) {
+            mTempData.clear();
+            mTempData.addAll(listData);
+        }
+        recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+        mItemTouchHelper.attachToRecyclerView(recyclerView);
     }
 
     @Override
     public T2 onCreateViewHolder(ViewGroup parent, int viewType) {
-        return onCreateMyViewHolder(parent, viewType);
+        return onCreateMyViewHolder(mContext, parent, viewType);
     }
 
     @Override
     public void onBindViewHolder(T2 holder, final int position) {
-        onBindMyViewHolder(holder, position);
+        onBindMyViewHolder(mContext, holder, position);
     }
 
     @Override
@@ -99,10 +99,6 @@ public abstract class AbstractDragRecycleViewAdapter<T, T2 extends RecyclerView.
 
         @Override
         public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
-            //废弃 滑动后数据和条目错乱，
-            Collections.swap(mTempData, viewHolder.getAdapterPosition(), target.getAdapterPosition());
-            notifyItemMoved(viewHolder.getAdapterPosition(), target.getAdapterPosition());
-
             //得到当拖拽的viewHolder的Position
             int currentPosition = viewHolder.getAdapterPosition();
             int targetPosition = target.getAdapterPosition();
@@ -161,7 +157,19 @@ public abstract class AbstractDragRecycleViewAdapter<T, T2 extends RecyclerView.
         }
     });
 
-    public abstract T2 onCreateMyViewHolder(ViewGroup parent, int viewType);
+    protected abstract T2 onCreateMyViewHolder(final Context context, ViewGroup parent, int viewType);
 
-    public abstract void onBindMyViewHolder(T2 holder, final int position);
+    protected abstract void onBindMyViewHolder(final Context context, T2 holder, int position);
+
+    protected abstract void addAll(List<T> menuItemBeanList);
+
+    protected List<T> getOriginData() {
+        return mTempData;
+    }
+
+    protected void resetData(List<T> menuItemBeanList) {
+        mTempData.clear();
+        mTempData.addAll(menuItemBeanList);
+        notifyDataSetChanged();
+    }
 }

@@ -1,5 +1,6 @@
 package com.patrick.cview;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -39,19 +40,24 @@ public class MainTestActivity extends AppCompatActivity implements View.OnClickL
         mAdapter = new AbstractDragRecycleViewAdapter<String, Vh>(this, mRecyclerView, datas) {
 
             @Override
-            public Vh onCreateMyViewHolder(ViewGroup parent, int viewType) {
-                return new Vh(LayoutInflater.from(MainTestActivity.this).inflate(R.layout.drag_recyclerview_item, null));
+            protected Vh onCreateMyViewHolder(Context context, ViewGroup parent, int viewType) {
+                return new Vh(LayoutInflater.from(context).inflate(R.layout.drag_recyclerview_item, null));
             }
 
             @Override
-            public void onBindMyViewHolder(Vh holder, int position) {
+            protected void onBindMyViewHolder(final Context context, Vh holder, int position) {
                 holder.tv.setText(datas.get(position).toString());
                 holder.iv.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Toast.makeText(MainTestActivity.this, "哈哈哈", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "哈哈哈", Toast.LENGTH_SHORT).show();
                     }
                 });
+            }
+
+            @Override
+            protected void addAll(List<String> menuItemBeanList) {
+
             }
         };
         mRecyclerView.setAdapter(mAdapter);
